@@ -29,6 +29,11 @@ Subsequent release:
 
 - generate a web site from markdown source, maintaining subdirectory organization of content, and optionally configurable at any level of the directory hierarchy (replicating configuration and functionality of now deprecated mdweb library)
 
+At a later time:
+
+- citedown tabulator to convert citedown source to  an OHCO2-equivalent tabular format
+
+
 
 ## More ##
 
