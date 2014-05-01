@@ -1,4 +1,4 @@
-package edu.holycross.shot.citedownutils
+package edu.holycross.shot.citedownmgr
 
 import org.pegdown.Extensions
 import org.pegdown.PegDownProcessor
