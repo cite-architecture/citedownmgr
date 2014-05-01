@@ -1,4 +1,4 @@
-package edu.holycross.shot.citedownutils
+package edu.holycross.shot.citedownmgr
 
 import static org.junit.Assert.*
 import org.junit.Test
