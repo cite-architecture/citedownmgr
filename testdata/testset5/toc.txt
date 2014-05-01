@@ -1,0 +1,5 @@
+zfirst.md=First file
+ymiddle.md=Middle
+subdir=Interleaved directory with toc
+subdir2=Another direcotry, but without toc
+xlast.md=End of sequence
