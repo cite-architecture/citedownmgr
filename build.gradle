@@ -42,6 +42,9 @@ dependencies {
   compile  group: 'edu.harvard.chs', name : 'citedown' , version: citedownVersion
   compile group: 'com.google.guava', name : 'guava', version: googleFilesVersion
 
+  compile group: 'com.google.guava', name : 'guava', version: googleFilesVersion
+  compile group: 'org.apache.commons', name : 'commons-io', version: apacheCommonsVersion
+
   testCompile group: 'junit', name: 'junit', version: junitVersion
   testCompile group :'xmlunit', name: 'xmlunit', version: xmlunitVersion
 }
