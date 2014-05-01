@@ -1,6 +1,6 @@
 # citedownutils 
 
-Utilities for working with source content in *citedown* (that is, markdown extended to support citation in URN notation).
+Utilities for working with source content in **citedown** (that is, markdown extended to support citation in URN notation).
 
 ## Background ##
 
@@ -25,6 +25,10 @@ There are lots of good tools for working with markdown. The `cd2md` library make
 ## More ##
 
 - [project wiki][wiki]
+- the [cd2md library][cd2md], including some background information about citedown
 
+
+
+[cd2md]: https://github.com/neelsmith/cd2md
 
 [wiki]: https://github.com/cite-architecture/citedownutils/wiki
