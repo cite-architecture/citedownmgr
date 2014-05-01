@@ -20,11 +20,12 @@ class TestConstructor extends GroovyTestCase {
     }
 
     File cantRead = new File("testdata/writeonly")
+    cantRead.mkdir()
     cantRead.setReadable(false,false)
     assert shouldFail {
       SiteBuilder illegible = new SiteBuilder(cantRead)
     }
-    cantRead.delete()
+    cantRead.deleteDir()
     
     SiteBuilder sb = new SiteBuilder(testset1)
     assert sb
