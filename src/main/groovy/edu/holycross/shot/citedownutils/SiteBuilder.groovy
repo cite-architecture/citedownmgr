@@ -4,6 +4,9 @@ import org.pegdown.Extensions
 import org.pegdown.PegDownProcessor
 
 import com.google.common.io.Files
+import org.apache.commons.io.FilenameUtils
+// org.apache.commons.io.FilenameUtils.getBaseName(file.name)
+
 
 /**
 * Works with one or more citedown source files in a directory hierarchy
@@ -39,7 +42,8 @@ class SiteBuilder {
    * @param srcDir Root directory of markdown source.
    * @throws Exception if srcDir not an extant readable directory.
    */
-  SiteBuilder(File srcDir) {
+  SiteBuilder(File srcDir) 
+  throws Exception {
     if (!srcDir.canRead()) {
       throw new Exception("Cannot read source directory ${srcDir}")
     }
@@ -78,7 +82,8 @@ class SiteBuilder {
    * @throws Exception if toc.txt does not exist in dir, or if
    * any files listed in toc.txt do not exist.
    */
-  java.util.ArrayList getFileNamesByToc(File dir, ArrayList files) {
+  java.util.ArrayList getFileNamesByToc(File dir, ArrayList files) 
+  throws Exception {
     File toc  = new File(dir, "toc.txt")
 
     if (!toc.exists()) {
@@ -137,6 +142,7 @@ class SiteBuilder {
 
   // get a non-conflicting file name for copy
   String getNewFileName(File dir, String fileName) {
+
     String newName
     // Use current name if it doesn't already exist
     File simpleSolution = new File (dir, fileName)
@@ -146,14 +152,24 @@ class SiteBuilder {
 
       // but if it does, use Apple-like rename:
     } else {
+      String baseName =  org.apache.commons.io.FilenameUtils.getBaseName(fileName)
+      String extension =   org.apache.commons.io.FilenameUtils.getExtension(fileName)
+      boolean hasExtension = extension.size() > 0
+
       Integer count = 1
       boolean done = false
       while (! done ) {
-	File testFile = new File(dir,"${fileName}-${count}")
+	String candidateName
+	if (hasExtension) {
+	  candidateName = "${baseName}-${count}.${extension}"
+	} else {
+	  candidateName = "${fileName}-${count}"
+	}
+	File testFile = new File(dir,candidateName)
 	if (testFile.exists()) {
 	  count++;
 	} else {
-	  newName = "${fileName}-${count}"
+	  newName =  candidateName
 	  done = true
 	}
       }
@@ -161,10 +177,19 @@ class SiteBuilder {
     return newName
   }
 
-  void flatCopy(File outputDir) {
-    flatCopy(this.fileSequence,this.mdRoot,outputDir)
+  ArrayList flatCopy(File outputDir) {
+    return flatCopy(this.fileSequence, outputDir)
   }
-  void flatCopy(ArrayList fileList, File rootDir, File outputDir) {
+  /** Copies files listed in ordered list fileList to outputDir, and returns
+   * an ordered list of output files.  Checks for duplicate names. Writes
+   * ordered list of files to Books.txt in outputDir for use with leanpub.
+   * @param fileList Ordered list of files to copy.
+   * @param outputDir Writable directory for output.
+   * @throws Exception if outputDir is not writable,
+   * or if a file in fileList is not readable.
+   */
+  ArrayList flatCopy(ArrayList fileList, File outputDir) 
+  throws Exception {
     if (!outputDir.exists()) {
       outputDir.mkdir()
     }
@@ -172,19 +197,21 @@ class SiteBuilder {
       throw new Exception("Cannot write to output directory ${outputDir}")
     }
     
-    fileList.each { f ->
-      String fileName = getNewFileName(outputDir, f.name)
-      File dest = new File(outputDir, fileName)
-      Files.copy(f, dest) 
+    File leanpub = new File(outputDir, "Books.txt")
 
-      //System.err.println "Process " + fileName + " from " + f.toString()
-      /*
-       String path1 = f.toString()
-            String trimMe = mdRoot.toString()
-            String relativeFile = path1.replaceFirst(trimMe, '')
-            return "${htmlRoot}${relativeFile}".replaceFirst(/.md$/,".html")
-       */
+    ArrayList outputSequence = []
+    fileList.each { f ->
+      if (f.exists() && f.canRead()) {
+	String fileName = getNewFileName(outputDir, f.name)
+	File dest = new File(outputDir, fileName)
+	Files.copy(f, dest) 
+	outputSequence.add(dest)
+	leanpub.append("${dest.name}\n")
+      } else {
+	throw new Exception("SiteBuilder:flatCopy: cannot read file ${f}.")
+      }
     }
+    return outputSequence
   }
 
 
