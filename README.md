@@ -15,11 +15,19 @@ There are lots of good tools for working with markdown. The `cd2md` library make
 
 ## Currently planned functionality
 
-- generate a web site from markdown source, maintaining subdirectory organization of content, and optionally configurable at any level of the directory hierarchy
+For fist release candidate (May, 2014):
+
 - using cd2md to generate pure markdown with URNs resolved to URLs, flatten citedown source in subdirectories into markdown in a single directory, including
-    - a `manifest.json` file for use with beautiful docs
     - a `Books.txt` file for use with leanpub
     - quoted images retrieved and stored locally, and linked with markdown ! notation for embedded images
+
+For next release:
+
+- add a `manifest.json` file for use with beautiful docs
+
+Subsequent release:
+
+- generate a web site from markdown source, maintaining subdirectory organization of content, and optionally configurable at any level of the directory hierarchy (replicating configuration and functionality of now deprecated mdweb library)
 
 
 ## More ##
