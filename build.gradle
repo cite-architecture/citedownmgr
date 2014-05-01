@@ -40,8 +40,8 @@ repositories {
 dependencies {
   compile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyVersion
   compile  group: 'edu.harvard.chs', name : 'citedown' , version: citedownVersion
-  compile group: 'com.google.guava', name : 'guava', version: googleFilesVersion
 
+    compile group: 'edu.harvard.chs', name : 'cite' , version: citeVersion	
   compile group: 'com.google.guava', name : 'guava', version: googleFilesVersion
   compile group: 'org.apache.commons', name : 'commons-io', version: apacheCommonsVersion
 

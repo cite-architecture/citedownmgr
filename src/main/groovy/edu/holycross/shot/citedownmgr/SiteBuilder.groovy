@@ -5,7 +5,16 @@ import org.pegdown.PegDownProcessor
 
 import com.google.common.io.Files
 import org.apache.commons.io.FilenameUtils
-// org.apache.commons.io.FilenameUtils.getBaseName(file.name)
+
+
+import edu.harvard.chs.citedown.ast.RootNode
+
+import edu.harvard.chs.citedown.PegDownProcessor
+import edu.harvard.chs.citedown.Extensions
+
+import edu.harvard.chs.citedownutils.MarkdownUtil
+
+import edu.harvard.chs.cite.CiteUrn
 
 
 /**
@@ -35,6 +44,9 @@ class SiteBuilder {
    * ending in extensions for the image types we use (jpeg, png).
    */
   FilenameFilter exclusionFilter = [accept: {d, f -> f.toLowerCase() != 'toc.txt' && f.toLowerCase() != 'web.properties' && ! (f.toLowerCase() ==~ /.+~/) && !(f.toLowerCase() ==~ /.+.jpg/) &&!(f.toLowerCase() ==~ /.+.png/) && !(f.toLowerCase() ==~ /.+.jpeg/) && (f[0] != '.')}] as FilenameFilter
+
+
+  MarkdownUtil mu
 
 
   
