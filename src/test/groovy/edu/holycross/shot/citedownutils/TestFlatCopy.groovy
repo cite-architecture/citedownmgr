@@ -31,6 +31,11 @@ class TestFlatCopy extends GroovyTestCase {
     File outputDir = new File("testdata/testoutput")
     SiteBuilder sb = new SiteBuilder(testset1)
     sb.flatCopy(outputDir)
+
+    ArrayList outputList = sb.sequenceFiles(outputDir)
+    outputList.eachWithIndex { f, i ->
+      assert f.length() == sb.fileSequence[i].length()
+    }
     outputDir.deleteDir()
   }
 

@@ -25,6 +25,7 @@ class TestConstructor extends GroovyTestCase {
     assert shouldFail {
       SiteBuilder illegible = new SiteBuilder(cantRead)
     }
+    cantRead.setReadable(true,false)
     cantRead.deleteDir()
     
     SiteBuilder sb = new SiteBuilder(testset1)

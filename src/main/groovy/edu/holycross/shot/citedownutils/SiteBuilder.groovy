@@ -44,7 +44,12 @@ class SiteBuilder {
       throw new Exception("Cannot read source directory ${srcDir}")
     }
     this.mdRoot = srcDir
-    this.fileSequence = sequenceFiles(this.mdRoot, [])
+    this.fileSequence = sequenceFiles(this.mdRoot)
+  }
+
+
+  java.util.ArrayList sequenceFiles(File dir) {
+    return sequenceFiles(dir,[])
   }
 
   /** Recursively walks directory tree and collects filenames in
@@ -130,6 +135,32 @@ class SiteBuilder {
     return files
   }
 
+  // get a non-conflicting file name for copy
+  String getNewFileName(File dir, String fileName) {
+    String newName
+    // Use current name if it doesn't already exist
+    File simpleSolution = new File (dir, fileName)
+    if (! simpleSolution.exists()) {
+      newName = fileName
+
+
+      // but if it does, use Apple-like rename:
+    } else {
+      Integer count = 1
+      boolean done = false
+      while (! done ) {
+	File testFile = new File(dir,"${fileName}-${count}")
+	if (testFile.exists()) {
+	  count++;
+	} else {
+	  newName = "${fileName}-${count}"
+	  done = true
+	}
+      }
+    }
+    return newName
+  }
+
   void flatCopy(File outputDir) {
     flatCopy(this.fileSequence,this.mdRoot,outputDir)
   }
@@ -142,9 +173,7 @@ class SiteBuilder {
     }
     
     fileList.each { f ->
-      String fileName = f.name
-      // test that target does not already exist!
-      
+      String fileName = getNewFileName(outputDir, f.name)
       File dest = new File(outputDir, fileName)
       Files.copy(f, dest) 
 
