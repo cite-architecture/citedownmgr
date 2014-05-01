@@ -206,7 +206,41 @@ class SiteBuilder {
   }
 
 
+
+  // Exceptoin if toc file does not exist; Exception if file lised in toc.txt
+  // does not exist.
   java.util.ArrayList getFileNamesByToc(File dir, ArrayList files) {
+    File toc  = new File(dir, "toc.txt")
+
+    if (!toc.exists()) {
+      throw new Exception("SiteBuilder: could not find requesed table of contens file ${dir}/toc.txt")
+    }
+
+    toc.eachLine { tocEntry ->
+      File entryFile
+      // blank lines allowed; comments with '#' ignored:
+      if ((tocEntry.size() > 0) && (tocEntry[0] != '#')) {
+	// check for either of two legal forms of listing:  
+	// 1: a bare file name, or 2: filename=title
+
+	ArrayList parts = tocEntry.split(/=/)
+	if (parts.size() == 2) {
+	  entryFile = new File(dir,parts[0])
+	} else {
+	  entryFile = new File(dir,tocEntry)
+	}
+      }
+      // file must exist:
+      if (! entryFile.exists()) {
+	throw new Exception("SiteBuilder: file ${entryFile} listed in ${dir}/toc.txt but file does not exist.")
+      } 
+      // recurse into subdirectories, add plain files to list:
+      if (entryFile.isDirectory()) {
+	files = sequenceFiles(entryFile,files) 
+      } else {
+	files.add(entryFile)
+      }
+    }
     return files
   }
 
@@ -231,5 +265,5 @@ class SiteBuilder {
     }
     return files
   }
-
 }
+
