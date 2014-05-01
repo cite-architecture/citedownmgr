@@ -1,6 +1,6 @@
-# citedownutils 
+# citedownmgr 
 
-Utilities for working with source content in **citedown** (that is, markdown extended to support citation in URN notation).
+Tools for managing a repository of texts in **citedown** (that is, markdown extended to support citation in URN notation).
 
 ## Background ##
 
