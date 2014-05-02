@@ -62,7 +62,7 @@ class TestTreeWalker extends GroovyTestCase {
     SiteBuilder sb = new SiteBuilder(testset5)
     ArrayList fileList = sb.sequenceFiles(testset5, [])
     System.err.println fileList
-    ArrayList expectedNames =  ["zfirst.md", "ymiddle.md", "sub1.md", "index.md", "index.md", "xlast.md"]
+    ArrayList expectedNames =  ["zfirst.md", "ymiddle.md", "sub1.md", "index.md", "imglink.md","index.md", "xlast.md"]
     fileList.eachWithIndex { f, i ->
       assert f.getName() == expectedNames[i]
     }

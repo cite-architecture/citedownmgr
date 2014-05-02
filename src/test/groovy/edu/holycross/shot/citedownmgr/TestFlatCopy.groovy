@@ -25,7 +25,7 @@ class TestFlatCopy extends GroovyTestCase {
     shouldFail {
       sb.flatCopy(cantWrite)
     }
-    cantWrite.delete()
+    cantWrite.deleteDir()
   }
 
 
@@ -36,6 +36,7 @@ class TestFlatCopy extends GroovyTestCase {
     shouldFail {
       ArrayList copyList = sb.flatCopy(bogusList, outputDir)
     }
+    outputDir.deleteDir()
   }
 
   void testFunnyNames() {
@@ -68,14 +69,13 @@ class TestFlatCopy extends GroovyTestCase {
     }
 
 
-    ArrayList expectedFiles = ["zfirst.md","ymiddle.md","sub1.md","index.md","index-1.md","xlast.md"]
+    ArrayList expectedFiles = ["zfirst.md","ymiddle.md","sub1.md","index.md","imglink.md","index-1.md","xlast.md"]
     Integer lineCount = 0
     File books = new File("testdata/testoutput/Books.txt")
     books.eachLine { ln ->
       assert ln == expectedFiles [lineCount]
       lineCount++
     }
-
     outputDir.deleteDir()
   }
 
