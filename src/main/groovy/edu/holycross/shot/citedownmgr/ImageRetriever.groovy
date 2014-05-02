@@ -35,7 +35,7 @@ class ImageRetriever {
   ImageRetriever(String mdSource) 
   throws Exception {
     this.mu = new MarkdownUtil(mdSource)
-    mu.collectReferences()
+    this.mu.collectReferences()
   }
 
 
@@ -65,11 +65,15 @@ class ImageRetriever {
   Integer retrieveImages(File outputDir) {
     return retrieveImages(outputDir, 1)
   }
-  // 1-origin counting.
+
+
+  
   Integer retrieveImages(File outputDir, Integer imgNum) {
+    Integer numberFound = 0
     if (! outputDir.exists()) {
       outputDir.mkdir()
     }
+    System.err.println "Reference map for retrieval is " + this.mu.referenceMap
     this.mu.referenceMap.keySet().each { ref ->
       def mapping =  this.mu.referenceMap[ref]
       String urnStr = mapping[0]
@@ -86,8 +90,9 @@ class ImageRetriever {
       System.err.println "Download ${urlStr} to ${imgFile}"
       this.download(urlStr, imgFile)
       imgNum++;
+      numberFound++;
     }
-    return (imgNum - 1)
+    return numberFound
   }
 
 }

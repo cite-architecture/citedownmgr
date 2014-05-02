@@ -46,9 +46,8 @@ class SiteBuilder {
   FilenameFilter exclusionFilter = [accept: {d, f -> f.toLowerCase() != 'toc.txt' && f.toLowerCase() != 'web.properties' && ! (f.toLowerCase() ==~ /.+~/) && !(f.toLowerCase() ==~ /.+.jpg/) &&!(f.toLowerCase() ==~ /.+.png/) && !(f.toLowerCase() ==~ /.+.jpeg/) && (f[0] != '.')}] as FilenameFilter
 
 
-  MarkdownUtil mu
-
-
+  String imgSvc
+  ArrayList imgCollections
   
   /** Constructor defining root directory for citedown source.
    * @param srcDir Root directory of markdown source.
@@ -62,6 +61,40 @@ class SiteBuilder {
     this.mdRoot = srcDir
     this.fileSequence = sequenceFiles(this.mdRoot)
   }
+
+
+  void  configureImages(String svcUrl, ArrayList collections) {
+    this.imgSvc = svcUrl
+    this.imgCollections = collections
+  }
+
+  boolean imagesConfigured() {
+    if (this.imgSvc && this.imgCollections) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  void retrieveImages(File outDir) {
+
+    Integer imgCount = 1
+    this.fileSequence.each { f ->
+      ImageRetriever imgRetriever = new ImageRetriever(f)
+      // test that we're configured...
+      imgRetriever.configureImageCollections(this.imgCollections)
+      imgRetriever.mu.img =  this.imgSvc
+      imgRetriever.mu.collectReferences()
+
+      System.err.println "Made image retriever for " + f
+      System.err.println "Its ref map is " + imgRetriever.mu.referenceMap
+      System.err.println "Start file ${f} at count ${imgCount}"
+      Integer retrieved = imgRetriever.retrieveImages(outDir, imgCount)
+      System.err.println "Retreived " + retrieved + " images.\n\n"
+      imgCount += retrieved
+    }
+  }
+
 
 
   java.util.ArrayList sequenceFiles(File dir) {
@@ -84,7 +117,6 @@ class SiteBuilder {
       return getFileNamesAlphabetically(dir,fileList)
     }
   }
-
 
   /** For a directory with a toc.txt file, collects all file names, 
    * and recursively sequences any listed subdirectories.

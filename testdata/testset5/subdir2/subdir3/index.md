@@ -1,1 +1,1 @@
-Single md file in subdirectory without toc.txt
+File in sub-sub directory with identical name to a file in another directory.
