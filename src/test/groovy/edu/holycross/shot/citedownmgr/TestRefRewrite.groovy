@@ -30,7 +30,7 @@ class TestRefRewrite extends GroovyTestCase {
     SiteBuilder sb = new SiteBuilder(testset1)    
     sb.configureImages(svc, ["urn:cite:hmt:vaimg"])
 
-    ArrayList srcList = sb.flatCopy(flatCopyDir)
+    ArrayList srcList = sb.flatCopy(outputDir)
     ArrayList modifiedList = sb.rewriteImageReff(srcList, filteredDir)
 
     assert srcList.size() == modifiedList.size()
