@@ -51,6 +51,13 @@ class SiteBuilder {
 
   /** List of any CITE Collections represented in imgSvc */
   ArrayList imgCollections
+
+  /** Base URL of CTS */
+  String cts
+
+  /** Base URL of CITE Collection service */
+  String cc
+
   
 
   /** Constructor defining root directory for citedown source.
@@ -128,8 +135,8 @@ class SiteBuilder {
   }
 
 
-
-  void rewriteImageReff(ArrayList fileList, File targetDir) {
+  // return list of filtered files
+  ArrayList rewriteImageReff(ArrayList fileList, File targetDir) {
     if (!targetDir.exists()) {
       targetDir.mkdir()
     }
@@ -137,9 +144,13 @@ class SiteBuilder {
       throw new Exception("SiteBuilder:rewriteImageReff: cannot write to output directory ${targetDir}")
     }
 
+
+    ArrayList filteredFiles = []
+
     Integer imgCount = 1
     fileList.each { f ->
       File targetFile = new File(targetDir, f.name)
+      filteredFiles.add(targetFile)
       ArrayList reff = getSortedReff(f)
       ArrayList lineList = f.readLines()
       reff.each { ref ->
@@ -158,7 +169,7 @@ class SiteBuilder {
 	targetFile.append(it + "\n")
       }
     }
-
+    return filteredFiles
   }
 
 
@@ -334,7 +345,7 @@ class SiteBuilder {
       outputDir.mkdir()
     }
     if (!outputDir.canWrite()) {
-      throw new Exception("Cannot write to output directory ${outputDir}")
+      throw new Exception("SiteBuilder:flatCopy: Cannot write to output directory ${outputDir}")
     } 
    
     File leanpub = new File(outputDir, "Books.txt")
@@ -357,10 +368,59 @@ class SiteBuilder {
 
   // generates a complete leanpub representation
   // of the citedown archive
-  void leanpub(targeDir) {
-    
+  void leanpub(File targetDir) 
+  throws Exception {
+    if (!targetDir.exists()) {
+      targetDir.mkdir()
+    }
+    if (!targetDir.canWrite()) {
+      throw new Exception("SiteBuilder:flatCopy: Cannot write to output directory ${targetDir}")
+    } 
+   
+    File flattened = new File("${targetDir}/TEMPDIR-flattened")
+    flattened.mkdir()
+
+    File filtered = new File("${targetDir}/TEMPDIR-filtered")
+    filtered.mkdir()
+
+    ArrayList flatList = this.flatCopy(flattened)
+    ArrayList modifiedList = this.rewriteImageReff(flatList, filtered)
+
+
+    ArrayList leanpubMarkdown = this.cdToMd(modifiedList,targetDir)
+
+    File imgDir = new File("${targetDir}/images")
+    this.retrieveImages(imgDir)
+
+    flattened.deleteDir()
+    filtered.deleteDir()
   }
 
+  String convertToMarkdown(File f) {
+    
+    MarkdownUtil mdu = new MarkdownUtil(f.getText())
+    mdu.cts = this.cts
+    mdu.img = this.imgSvc
+    mdu.imgCollections = this.imgCollections
+    return mdu.toMarkdown()
+  }
+
+  // if cannot write to outdir
+  ArrayList cdToMd(ArrayList srcFiles, File outDir) 
+  throws Exception{
+    if (!outDir.exists()) {
+      outDir.mkdir()
+    }
+    if (!outDir.canWrite()) {
+      throw new Exception("SiteBuilder:cdToMd: Cannot write to output directory ${outDir}")
+    } 
+
+    srcFiles.each { f ->
+      File target = new File(outDir, f.name)
+      System.err.println "Convert ${f}  to ${target}"
+      target.setText(convertToMarkdown(f), "UTF-8")
+    }
+  }
 
 
   // USE THIS CONSTRUCTOR WHEN IMPLEMENTING A MAIN METHOD

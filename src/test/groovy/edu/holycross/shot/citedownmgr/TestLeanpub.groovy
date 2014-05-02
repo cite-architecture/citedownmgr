@@ -14,27 +14,27 @@ import edu.harvard.chs.cite.CiteUrn
 
 /**
 */
-class TestRefRewrite extends GroovyTestCase {
+class TestLeanpub extends GroovyTestCase {
 
 
   File testset1 = new File("testdata/testset1")
   File testset2 = new File("testdata/testset2")
   File testset5 = new File("testdata/testset5")
 
-  String svc =  "http://pelike.hpcc.uh.edu/hmtdigital/images"
+  String imgsvc =  "http://pelike.hpcc.uh.edu/hmtdigital/images"
+  String cts =  "http://pelike.hpcc.uh.edu/hmtdigital/texts"
+  ArrayList imgColls = ["urn:cite:hmt:vaimg"]
 
-  void testFlatCorpusRewrite() {
+  void testFlatCorpus() {
+    File leanpubDir = new File("testdata/testoutput")
 
-    File outputDir = new File("testdata/testoutput")
-    File filteredDir = new File("testdata/testoutput/filtered")
     SiteBuilder sb = new SiteBuilder(testset1)    
-    sb.configureImages(svc, ["urn:cite:hmt:vaimg"])
+    sb.configureImages(imgsvc, imgColls)
+    sb.cts = cts
+    sb.leanpub(leanpubDir)
+    // add tests: on num files in dir, num image files in image dir?
+    leanpubDir.deleteDir()
 
-    ArrayList srcList = sb.flatCopy(flatCopyDir)
-    ArrayList modifiedList = sb.rewriteImageReff(srcList, filteredDir)
-
-    assert srcList.size() == modifiedList.size()
-    outputDir.deleteDir()
   }
 
 
