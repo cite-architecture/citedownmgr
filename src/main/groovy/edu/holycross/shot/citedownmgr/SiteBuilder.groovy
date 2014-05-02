@@ -118,6 +118,50 @@ class SiteBuilder {
   }
 
 
+  // collects all reference definitions in a citedown source file
+  // and returns them (sorted)
+  ArrayList getSortedReff(File f) {
+    String md = f.getText("UTF-8")
+    MarkdownUtil mu = new MarkdownUtil(md)
+    mu.collectReferences()
+    return mu.referenceMap.keySet().sort()
+  }
+
+
+
+  void rewriteImageReff(ArrayList fileList, File targetDir) {
+    if (!targetDir.exists()) {
+      targetDir.mkdir()
+    }
+    if (!targetDir.canWrite()) {
+      throw new Exception("SiteBuilder:rewriteImageReff: cannot write to output directory ${targetDir}")
+    }
+
+    Integer imgCount = 1
+    fileList.each { f ->
+      File targetFile = new File(targetDir, f.name)
+      ArrayList reff = getSortedReff(f)
+      ArrayList lineList = f.readLines()
+      reff.each { ref ->
+	lineList.eachWithIndex { l, i ->
+	  if (l.startsWith("[${ref}]:")) {
+	    String revision = l.replaceFirst(/:.+/, ": images/img${imgCount}.jpg")
+	    lineList[i]  = revision
+	    //	    System.err.println "\tREWRITE AS: " + lineList[i]
+	  }
+
+	}
+	imgCount++;
+      }
+      
+      lineList.each {
+	targetFile.append(it + "\n")
+      }
+    }
+
+  }
+
+
   /** Recursively walks directory tree and collects filenames in
    * proper order.
    * Checks for presence of toc file, and, if present, uses its sequence.
@@ -310,6 +354,12 @@ class SiteBuilder {
     return outputSequence
   }
 
+
+  // generates a complete leanpub representation
+  // of the citedown archive
+  void leanpub(targeDir) {
+    
+  }
 
 
 

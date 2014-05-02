@@ -73,7 +73,6 @@ class ImageRetriever {
     if (! outputDir.exists()) {
       outputDir.mkdir()
     }
-    System.err.println "Reference map for retrieval is " + this.mu.referenceMap
     this.mu.referenceMap.keySet().sort().each { ref ->
       def mapping =  this.mu.referenceMap[ref]
       String urnStr = mapping[0]
@@ -87,7 +86,6 @@ class ImageRetriever {
 
       File imgFile = new File(outputDir, "img${imgNum}.jpg")
 
-      System.err.println "Download ${urlStr} to ${imgFile}"
       this.download(urlStr, imgFile)
       imgNum++;
       numberFound++;
