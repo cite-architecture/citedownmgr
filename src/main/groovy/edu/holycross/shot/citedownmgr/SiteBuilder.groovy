@@ -46,9 +46,13 @@ class SiteBuilder {
   FilenameFilter exclusionFilter = [accept: {d, f -> f.toLowerCase() != 'toc.txt' && f.toLowerCase() != 'web.properties' && ! (f.toLowerCase() ==~ /.+~/) && !(f.toLowerCase() ==~ /.+.jpg/) &&!(f.toLowerCase() ==~ /.+.png/) && !(f.toLowerCase() ==~ /.+.jpeg/) && (f[0] != '.')}] as FilenameFilter
 
 
+  /** Base URL of CITE Image Service */
   String imgSvc
+
+  /** List of any CITE Collections represented in imgSvc */
   ArrayList imgCollections
   
+
   /** Constructor defining root directory for citedown source.
    * @param srcDir Root directory of markdown source.
    * @throws Exception if srcDir not an extant readable directory.
@@ -63,11 +67,16 @@ class SiteBuilder {
   }
 
 
+  /** Initializes settings needed to retrieve images */
   void  configureImages(String svcUrl, ArrayList collections) {
     this.imgSvc = svcUrl
     this.imgCollections = collections
   }
 
+
+  /** Determines if object is configured to retrieve images.
+   * @returns true if required settings are initialized.
+   */
   boolean imagesConfigured() {
     if (this.imgSvc && this.imgCollections) {
       return true
@@ -76,27 +85,46 @@ class SiteBuilder {
     }
   }
 
-  void retrieveImages(File outDir) {
+
+  /** Sequentially steps through each file in sequence and
+   * downloads a local copy of any images quoted in the citedown.
+   *
+   * @param outDir  A writable directory for output.
+   * @throws Exception if outDir is not writable, or if
+   * SiteBuilder is not configured to retrieve images.
+   */
+  void retrieveImages(File outDir) 
+  throws Exception {
+    if (!outDir.exists()) {
+      outDir.mkdir()
+    }
+    if (!outDir.canWrite()) {
+      throw new Exception("SiteBuilder:retrieveImages: cannot write to output directory ${outDir}")
+    }
+
+    if (! imagesConfigured()) {
+      throw new Exception("SiteBuilder:retrieveImages: not configured to retrieve images.")
+    }
 
     Integer imgCount = 1
     this.fileSequence.each { f ->
       ImageRetriever imgRetriever = new ImageRetriever(f)
-      // test that we're configured...
       imgRetriever.configureImageCollections(this.imgCollections)
       imgRetriever.mu.img =  this.imgSvc
       imgRetriever.mu.collectReferences()
-
-      System.err.println "Made image retriever for " + f
-      System.err.println "Its ref map is " + imgRetriever.mu.referenceMap
-      System.err.println "Start file ${f} at count ${imgCount}"
       Integer retrieved = imgRetriever.retrieveImages(outDir, imgCount)
-      System.err.println "Retreived " + retrieved + " images.\n\n"
       imgCount += retrieved
     }
   }
 
 
-
+  /** Recursively walks directory tree and collects filenames in
+   * proper order.
+   * Checks for presence of toc file, and, if present, uses its sequence.
+   * Otherwise, follows alphabetical order.
+   * @param dir Root directory to begin from.
+   * @returns Ordered list of file names.
+   */
   java.util.ArrayList sequenceFiles(File dir) {
     return sequenceFiles(dir,[])
   }
@@ -184,26 +212,37 @@ class SiteBuilder {
     return files
   }
 
-  // get a non-conflicting file name for copy
-  String getNewFileName(File dir, String fileName) {
 
+  /** Produces a unique name for a file to copy to a
+   * given directory.  If the file's name is not already
+   * taken, it simply returns the source file's name.
+   * Otherwise, it appends an integer to the file's name.
+   * @param dir Target directory where file should be copied.
+   * @param fileName Source file to copy to dir.
+   * @returns A String guaranteed not to conflict with
+   * any file names in dir.
+   */
+  String getNewFileName(File dir, String fileName) {
     String newName
+
     // Use current name if it doesn't already exist
     File simpleSolution = new File (dir, fileName)
     if (! simpleSolution.exists()) {
       newName = fileName
 
 
-      // but if it does, use Apple-like rename:
+    // but if it does, use Apple-like rename with integer appended:
     } else {
       String baseName =  org.apache.commons.io.FilenameUtils.getBaseName(fileName)
       String extension =   org.apache.commons.io.FilenameUtils.getExtension(fileName)
       boolean hasExtension = extension.size() > 0
-
+      
       Integer count = 1
       boolean done = false
       while (! done ) {
 	String candidateName
+	// courteous to preserve extensions for source files that have
+	// have them:
 	if (hasExtension) {
 	  candidateName = "${baseName}-${count}.${extension}"
 	} else {
@@ -221,14 +260,27 @@ class SiteBuilder {
     return newName
   }
 
-  ArrayList flatCopy(File outputDir) {
+
+  /** Copies to outputDir files in this archive in the sequence
+   * determined in the constructor. Checks for duplicate names. Writes
+   * ordered list of files to Books.txt in outputDir for use with leanpub.
+   * @param fileList Ordered list of files to copy.
+   * @param outputDir Writable directory for output.
+   * @returns An ordered list of the new Files.
+   * @throws Exception if outputDir is not writable,
+   * or if a file listed in the file sequence is not readable.
+   */
+  ArrayList flatCopy(File outputDir) 
+  throws Exception {
     return flatCopy(this.fileSequence, outputDir)
   }
+
   /** Copies files listed in ordered list fileList to outputDir, and returns
    * an ordered list of output files.  Checks for duplicate names. Writes
    * ordered list of files to Books.txt in outputDir for use with leanpub.
    * @param fileList Ordered list of files to copy.
    * @param outputDir Writable directory for output.
+   * @returns An ordered list of the new Files.
    * @throws Exception if outputDir is not writable,
    * or if a file in fileList is not readable.
    */
@@ -239,8 +291,8 @@ class SiteBuilder {
     }
     if (!outputDir.canWrite()) {
       throw new Exception("Cannot write to output directory ${outputDir}")
-    }
-    
+    } 
+   
     File leanpub = new File(outputDir, "Books.txt")
 
     ArrayList outputSequence = []
@@ -260,34 +312,10 @@ class SiteBuilder {
 
 
 
-  /** Verifies status of source and output directories,
-   * and creates the latter if necessary.
-   * @param srcDir Root directory of markdown source.
-   * @param outputDir Root directory for writing HTML output.
-   * @throws Exception if file permissions on either source or
-   * output directory don't work.
-   */
 
-  /*
-  void setUpDirectories(File srcDir, File outputDir) 
-  throws Exception {
-    if (!outputDir.exists()) {
-      outputDir.mkdir()
-    }
-    if (!outputDir.canWrite()) {
-      throw new Exception("Cannot write to output directory ${outputDir}")
-    }
-    //this.htmlRoot = outputDir
-
-    if (!srcDir.canRead()) {
-      throw new Exception("Cannot read source directory ${srcDir}")
-    }
-    this.mdRoot = srcDir
-  }
-
-  */
+  // USE THIS CONSTRUCTOR WHEN IMPLEMENTING A MAIN METHOD
      /** Constructor defining directories for markdown
-     * source and HTML output.
+     * source and HTML output.  
      * @param srcDir Root directory of markdown source.
      * @param outputDir Root directory for writing HTML output.
      * @throws Exception if file permissions on either source or
