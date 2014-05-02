@@ -74,7 +74,7 @@ class ImageRetriever {
       outputDir.mkdir()
     }
     System.err.println "Reference map for retrieval is " + this.mu.referenceMap
-    this.mu.referenceMap.keySet().each { ref ->
+    this.mu.referenceMap.keySet().sort().each { ref ->
       def mapping =  this.mu.referenceMap[ref]
       String urnStr = mapping[0]
       CiteUrn urn
