@@ -61,7 +61,7 @@ class SiteBuilder {
   /** Base URL of CITE Collection service */
   String cc
 
-  
+
 
   /** Constructor defining root directory for citedown source.
    * @param srcDir Root directory of markdown source.
@@ -169,7 +169,28 @@ class SiteBuilder {
       ArrayList reff = getSortedReff(f)
       ArrayList lineList = f.readLines()
       reff.each { ref ->
+
+	def citePattern = ~/\{(.+)\}.${ref}./
+
+ /* /{([^}])*}.${ref}./ */
+
+
 	lineList.eachWithIndex { l, i ->
+	  // ALSO LOOK FOR:
+	  // {TEXT}[${ref}]
+	  // and replace with 
+	  // [TEXTS][${ref}]
+	  //def matcher = l =~ "\{.*\}.${ref}."
+	  def matcher = l =~ citePattern
+	  if (matcher.getCount()) {
+	    System.err.println "MATCHED: " + matcher
+	    matcher.each { match, caption ->
+	      System.err.println "\t" + match
+	      System.err.println "\t" + caption
+
+	    }
+	  }
+
 	  if (l.startsWith("[${ref}]:")) {
 	    String revision = l.replaceFirst(/:.+/, ": images/img${imgCount}.jpg")
 	    lineList[i]  = revision
