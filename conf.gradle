@@ -1,0 +1,9 @@
+
+ext {
+  citedownDir = ""
+  outputDir = ""
+  imgSvc = ""
+  imgCollection = ""
+  cts = ""
+  cc = ""
+}

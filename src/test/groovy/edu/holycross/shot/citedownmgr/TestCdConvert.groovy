@@ -14,12 +14,13 @@ import edu.harvard.chs.cite.CiteUrn
 
 /**
 */
-class TestLeanpub extends GroovyTestCase {
+class TestCdConvert extends GroovyTestCase {
 
 
-  File testset1 = new File("testdata/testset1")
+  
   File testset7 = new File("testdata/testset7")
-  File testset5 = new File("testdata/testset5")
+  File testFile = new File(testset7, "intro.md")
+  File testFile2 = new File(testset7, "filteredintro.md")
 
   String imgsvc =  "http://pelike.hpcc.uh.edu/hmtdigital/images"
   String cts =  "http://pelike.hpcc.uh.edu/hmtdigital/texts"
@@ -27,16 +28,30 @@ class TestLeanpub extends GroovyTestCase {
 
   void testMixedReferences() {
     File leanpubDir = new File("testdata/testoutput")
+    if (! leanpubDir.exists()) {
+      leanpubDir.mkdir()
+    }
     SiteBuilder sb = new SiteBuilder(testset7)    
-    sb.configureImages(imgsvc, imgColls)
     sb.cts = cts
+    sb.imgSvc = imgsvc
+    sb.imgCollections = imgColls
 
-    System.err.println "Configured site builder. Now invoke leanpub()"
-    sb.leanpub(leanpubDir)
+    String md = sb.convertToMarkdown(testFile)
 
-    // add tests: on num files in dir, num image files in image dir?
-    //leanpubDir.deleteDir()
+    System.err.println "CONVERTED: \n\n" + md
+    
+    File converted = new File(leanpubDir, "testout.md") 
+    converted.setText(md, "UTF-8")
+    
+    md = sb.convertToMarkdown(testFile2)
+    System.err.println "\n\nSECOND CONVERSIONL: \n\n" + md
 
+    File converted2 = new File(leanpubDir, "testout2.md") 
+    converted2.setText(md, "UTF-8")
+    
+
+    
+    
   }
 
 

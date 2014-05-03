@@ -22,6 +22,8 @@ import edu.harvard.chs.cite.CiteUrn
 class ImageRetriever {
 
 
+  Integer debug = 0
+
   MarkdownUtil mu
 
 
@@ -80,15 +82,21 @@ class ImageRetriever {
       try {
 	urn = new CiteUrn(urnStr)
       } catch (Exception e) {
-	System.err.println "Not a valid CITE URN: ${urnStr}"
+	if (debug > 0) {
+	  System.err.println "ImageRetriever:retrieveImages: skip reference ${urnStr}"
+	}
       }
-      String urlStr = urlForUrn(urn)
 
-      File imgFile = new File(outputDir, "img${imgNum}.jpg")
-
-      this.download(urlStr, imgFile)
-      imgNum++;
-      numberFound++;
+      if (urn) {
+	String collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
+	if (this.mu.imgCollections.contains(collUrn)) {
+	  String urlStr = urlForUrn(urn)
+	  File imgFile = new File(outputDir, "img${imgNum}.jpg")
+	  this.download(urlStr, imgFile)
+	  imgNum++;
+	  numberFound++;
+	}
+      }
     }
     return numberFound
   }

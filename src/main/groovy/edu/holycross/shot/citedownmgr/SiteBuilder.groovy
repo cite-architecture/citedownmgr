@@ -23,6 +23,9 @@ import edu.harvard.chs.cite.CiteUrn
 */
 class SiteBuilder {
 
+  Integer debug = 2
+
+
   /** Root directory of source files in citedown format. */
   File mdRoot
 
@@ -158,7 +161,6 @@ class SiteBuilder {
 	  if (l.startsWith("[${ref}]:")) {
 	    String revision = l.replaceFirst(/:.+/, ": images/img${imgCount}.jpg")
 	    lineList[i]  = revision
-	    //	    System.err.println "\tREWRITE AS: " + lineList[i]
 	  }
 
 	}
@@ -379,29 +381,40 @@ class SiteBuilder {
    
     File flattened = new File("${targetDir}/TEMPDIR-flattened")
     flattened.mkdir()
-
+    
     File filtered = new File("${targetDir}/TEMPDIR-filtered")
     filtered.mkdir()
 
-    ArrayList flatList = this.flatCopy(flattened)
-    ArrayList modifiedList = this.rewriteImageReff(flatList, filtered)
 
+    ArrayList flatList = this.flatCopy(flattened)
+    if (debug > 0) {
+      System.err.println "Flattened source files into ${flattened}"
+    }
+
+    ArrayList modifiedList = this.rewriteImageReff(flatList, filtered)
+    if (debug > 0) {
+      System.err.println "Filtered flattened source files into ${filtered}"
+    }
 
     ArrayList leanpubMarkdown = this.cdToMd(modifiedList,targetDir)
 
     File imgDir = new File("${targetDir}/images")
     this.retrieveImages(imgDir)
 
-    flattened.deleteDir()
-    filtered.deleteDir()
+    if (debug > 1) {
+    } else {
+      flattened.deleteDir()
+      filtered.deleteDir()
+    }
   }
 
   String convertToMarkdown(File f) {
-    
+    System.err.println "SiteBuider:convertToMarkdown: Convert contens of ${f} to pure markdown string"
     MarkdownUtil mdu = new MarkdownUtil(f.getText())
     mdu.cts = this.cts
     mdu.img = this.imgSvc
     mdu.imgCollections = this.imgCollections
+    
     return mdu.toMarkdown()
   }
 
@@ -417,58 +430,10 @@ class SiteBuilder {
 
     srcFiles.each { f ->
       File target = new File(outDir, f.name)
-      System.err.println "Convert ${f}  to ${target}"
+      if (debug > 0) { System.err.println "SiteBuilder:cdToMd: Convert citedown file ${f}  to markdown ${target}" }
       target.setText(convertToMarkdown(f), "UTF-8")
     }
   }
-
-
-  // USE THIS CONSTRUCTOR WHEN IMPLEMENTING A MAIN METHOD
-     /** Constructor defining directories for markdown
-     * source and HTML output.  
-     * @param srcDir Root directory of markdown source.
-     * @param outputDir Root directory for writing HTML output.
-     * @throws Exception if file permissions on either source or
-     * output directory don't work.
-     */
-
-  /*
-     SiteBuilder(File srcDir, File outputDir) 
-     throws Exception {
-         try {
-             setUpDirectories(srcDir,outputDir)
-         } catch (Exception e) {
-             throw e
-         }
-     }
-  */
-
-     /** Main method for stand-alone execution.
-     * @param arg Main methods expects two arguments naming paths
-     * to source directory and output directory respectively.
-     * @throws Exception if wrong number of arguments, or if 
-     * directory permissions are not correct.
-     */
-
-  /*
-     public static void main(String [] arg) 
-     throws Exception {
-         if (arg.size() != 2) {
-             throw new Exception("SiteBuilder usage: java edu.holycross.shot.mdweb.SiteBuilder <SOURCEDIRECTORY> <OUTPUTDIRECTORY>")
-         }
-         try {
-             File src = new File(arg[0])
-             File out = new File(arg[1])
-             SiteBuilder sb = new SiteBuilder(src,out)
-             sb.buildSite()
-         } catch (Exception e) {
-             throw e
-         }
-     }
-
-  */
-
-
 
 }
 

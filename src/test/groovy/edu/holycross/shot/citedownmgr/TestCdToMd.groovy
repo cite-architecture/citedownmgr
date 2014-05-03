@@ -27,8 +27,11 @@ class TestCdToMd extends GroovyTestCase {
 
 
   void testFlatCorpusRewrite() {
-
-    File flatCopyDir = new File("testdata/testoutput")
+    File outputDir = new File ("testdata/testoutput")
+    if (! outputDir.exists()) {
+      outputDir.mkdir()
+    }
+    File flatCopyDir = new File("testdata/testoutput/flattened")
     File filteredDir = new File("testdata/testoutput/filtered")
     File pureMd = new File("testdata/testoutput/markdown")
 
@@ -41,6 +44,8 @@ class TestCdToMd extends GroovyTestCase {
     ArrayList modifiedList = sb.rewriteImageReff(srcList, filteredDir)
     assert srcList.size() == modifiedList.size()
 
+
+    // THIS IS BAD:
     sb.cdToMd(modifiedList, pureMd)
 
     // flatCopyDir.deleteDir()

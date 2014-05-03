@@ -28,6 +28,25 @@ if (hasProperty('pub')) {
 }
 
 
+if (hasProperty('conf')) {
+    System.err.print "Using configuration data from ${conf}"
+    File confFile = new File(conf)
+    if (! confFile.exists()) {
+        throw new Exception("No configuration file ${conf} found.")
+    } else {
+        apply from: conf
+    }
+
+} else {
+    File confFile = new File("conf.gradle")
+    if (! confFile.exists()) {
+        throw new Exception("No publication configuration file ${confFile} found.")
+    } else {
+        println "Using default configuration in 'conf.gradle'"
+        apply from: "conf.gradle"
+    }
+}
+
 
 repositories {
     mavenCentral()
@@ -40,13 +59,25 @@ repositories {
 dependencies {
   compile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyVersion
   compile  group: 'edu.harvard.chs', name : 'citedown' , version: citedownVersion
+  compile group: 'edu.harvard.chs', name : 'cite' , version: citeVersion	
 
-    compile group: 'edu.harvard.chs', name : 'cite' , version: citeVersion	
   compile group: 'com.google.guava', name : 'guava', version: googleFilesVersion
   compile group: 'org.apache.commons', name : 'commons-io', version: apacheCommonsVersion
 
   testCompile group: 'junit', name: 'junit', version: junitVersion
   testCompile group :'xmlunit', name: 'xmlunit', version: xmlunitVersion
+}
+
+task leanpub(type: JavaExec, dependsOn: compileGroovy) {
+    description = "Generate Leanpub layout"
+    main = "edu.holycross.shot.citedownmgr.Leanpub"
+    args = [citedownDir, outputDir, imgSvc, imgCollection, cts, cc]
+
+    classpath sourceSets.main.output.classesDir
+    classpath configurations.runtime
+    doLast {
+      System.err.println "Do the whole thing in a JavaExec task"
+    }
 }
 
 
