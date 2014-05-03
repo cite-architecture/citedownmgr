@@ -128,8 +128,11 @@ class SiteBuilder {
   }
 
 
-  // collects all reference definitions in a citedown source file
-  // and returns them (sorted)
+  /** Collects all reference definitions in a citedown source file
+   * and returns them in a sorted list.
+   * @param f File with contents in citedown.
+   * @returns A sorted list of reference identifiers.
+   */
   ArrayList getSortedReff(File f) {
     String md = f.getText("UTF-8")
     MarkdownUtil mu = new MarkdownUtil(md)
@@ -138,8 +141,19 @@ class SiteBuilder {
   }
 
 
-  // return list of filtered files
-  ArrayList rewriteImageReff(ArrayList fileList, File targetDir) {
+
+  /** Given a set of files with contents in citedown, writes 
+   * a parallel set of identically named files substituting
+   * references to locally downloaded images for any URN
+   * quotations of images.
+   * @param fileList List of files to analyze.
+   * @param targetDir A writable directory where filtered files
+   * will be written.
+   * @returns A list of filtered files.
+   * @throws Exception if target is not writable.
+   */
+  ArrayList rewriteImageReff(ArrayList fileList, File targetDir) 
+  throws Exception {
     if (!targetDir.exists()) {
       targetDir.mkdir()
     }
@@ -147,9 +161,7 @@ class SiteBuilder {
       throw new Exception("SiteBuilder:rewriteImageReff: cannot write to output directory ${targetDir}")
     }
 
-
     ArrayList filteredFiles = []
-
     Integer imgCount = 1
     fileList.each { f ->
       File targetFile = new File(targetDir, f.name)
@@ -368,8 +380,18 @@ class SiteBuilder {
   }
 
 
-  // generates a complete leanpub representation
-  // of the citedown archive
+  /** Generates a translation of an entire citedown
+   * archive in pure markdown that can be directly used with
+   * leanpub (https://leanpub.com/).  Organization in subdirectories 
+   * is flattened into a single directory with leanpub's Books.txt
+   * file listing the contents in the correct order. Quoted images
+   * are downloaded in a subdirectory named "images", and references 
+   * in the markdown files are changed to point to the local images.
+   * @param targetDir A writable directory where output will be
+   * written.  If this is the "manuscripts" directory of a leanpub
+   * project, you can directly publish your work from leanpub's
+   * web interface.
+   */
   void leanpub(File targetDir) 
   throws Exception {
     if (!targetDir.exists()) {
@@ -408,6 +430,12 @@ class SiteBuilder {
     }
   }
 
+
+  /** Uses a MarkdownUtil to convert citedown source text to
+   * pure markdown.
+   * @param f File with contents in citedown.
+   * @returns A String of pure markdown.
+   */
   String convertToMarkdown(File f) {
     System.err.println "SiteBuider:convertToMarkdown: Convert contens of ${f} to pure markdown string"
     MarkdownUtil mdu = new MarkdownUtil(f.getText())
@@ -418,7 +446,14 @@ class SiteBuilder {
     return mdu.toMarkdown()
   }
 
-  // if cannot write to outdir
+  /** Given a set of files with content in citedown,
+   * writes a matching set of identically named files 
+   * converted to pure markdown.
+   * @param srcFiles A list of files to convert.
+   * @param outDir A writable directory where converted
+   * files should be written
+   * @throws Exception if cannot write to outDir.
+  */
   ArrayList cdToMd(ArrayList srcFiles, File outDir) 
   throws Exception{
     if (!outDir.exists()) {
