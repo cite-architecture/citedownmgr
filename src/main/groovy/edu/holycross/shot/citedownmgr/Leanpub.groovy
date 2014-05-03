@@ -42,6 +42,7 @@ class Leanpub {
     SiteBuilder sb = new SiteBuilder(src)    
     sb.configureImages(imgSvc, imgCollections)
     sb.cts = cts
+    sb.debug = 2
     sb.leanpub(outDir)
   }
 

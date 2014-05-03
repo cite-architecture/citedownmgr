@@ -2,7 +2,7 @@
 
 Examples of everything you could want.  
 
-Embed a textual quotation with bang notation.  Here is is the opening of the *Iliad*:  ![1.1][txt1]
+Embed a textual quotation with bang notation.  Here is is the opening of the *Iliad*:  !{1.1}[txt1]
 
 Images are essential for many purposes.  Here is the abuction of Helen:  ![by Paris][img1]
 
@@ -11,5 +11,5 @@ Images are essential for many purposes.  Here is the abuction of Helen:  ![by Pa
 
 
 
-[txt1]: images/img2.jpg
+[txt1]: urn:cts:greekLit:tlg0012.tlg001.msA:1.1
 

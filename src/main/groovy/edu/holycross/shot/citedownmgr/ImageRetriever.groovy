@@ -17,16 +17,25 @@ import edu.harvard.chs.citedownutils.MarkdownUtil
 import edu.harvard.chs.cite.CiteUrn
 
 
-/**
+/** A class to support working with citedown content including quotation
+ * of images.
 */
 class ImageRetriever {
 
 
   Integer debug = 0
 
+
+  /** An instance of the utility class 
+   * that can parse and work with citedown.
+   */
   MarkdownUtil mu
 
 
+  /** Constructor to work with image references
+   *  in a file.
+   * @param mdFile A file with content in citedown.
+   */
   ImageRetriever(File mdFile) 
   throws Exception {
     String md = mdFile.getText()
@@ -34,6 +43,11 @@ class ImageRetriever {
     mu.collectReferences()
   }
 
+
+  /** Constructor to work with image references
+   *  in from a String source.
+   * @param mdSource A String of content in citedown.
+   */
   ImageRetriever(String mdSource) 
   throws Exception {
     this.mu = new MarkdownUtil(mdSource)
@@ -41,9 +55,17 @@ class ImageRetriever {
   }
 
 
+
+  /** Configures markdown utility to recognize 
+   * a set of Cite Collections as image collections.
+   * @param imgColls List of collection-level CITE URNs
+   * identifying image collections.
+   */
   void configureImageCollections(ArrayList imgColls) {
     this.mu.imgCollections = imgColls
   }
+
+
 
   // check that mu.img is configured, and that
   // mu.imgCollections is configured
@@ -54,6 +76,12 @@ class ImageRetriever {
   }
 
 
+  /** Retrieves binary image content from a remote
+   * and saves locally.
+   * @param address The URL, as a String, of an image
+   * to retrieve.
+   * @param imgFile A local file for the retrieved image.
+   */
   void download(String address, File imgFile) {
     imgFile.withOutputStream { out ->
       out << new URL(address).openStream()
@@ -68,13 +96,12 @@ class ImageRetriever {
     return retrieveImages(outputDir, 1)
   }
 
-
-  
-  Integer retrieveImages(File outputDir, Integer imgNum) {
-    Integer numberFound = 0
-    if (! outputDir.exists()) {
-      outputDir.mkdir()
-    }
+  // get citedown references that refer to 
+  // images in configured collections.
+  // criteria:  must be a valid CITE Collection
+  // URN in a configured collection
+  ArrayList getImageRefList() {
+    ArrayList imgReff = []
     this.mu.referenceMap.keySet().sort().each { ref ->
       def mapping =  this.mu.referenceMap[ref]
       String urnStr = mapping[0]
@@ -90,16 +117,38 @@ class ImageRetriever {
       if (urn) {
 	String collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
 	if (this.mu.imgCollections.contains(collUrn)) {
-	  String urlStr = urlForUrn(urn)
-	  File imgFile = new File(outputDir, "img${imgNum}.jpg")
-	  this.download(urlStr, imgFile)
-	  imgNum++;
-	  numberFound++;
+	  imgReff.add(ref)
 	}
       }
     }
-    return numberFound
+    return imgReff.sort()
   }
 
+
+  Integer retrieveImages(File outputDir, Integer imgNum) {
+    Integer numberFound = 0
+    if (! outputDir.exists()) {
+      outputDir.mkdir()
+    }
+    
+    ArrayList imgReff = this.getImageRefList()
+    imgReff.each { ref ->
+      def mapping =  this.mu.referenceMap[ref]
+      String urnStr = mapping[0]
+      CiteUrn urn = new CiteUrn(urnStr)
+      
+      String collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
+      if (this.mu.imgCollections.contains(collUrn)) {
+	String urlStr = urlForUrn(urn)
+	File imgFile = new File(outputDir, "img${imgNum}.jpg")
+	this.download(urlStr, imgFile)
+	imgNum++;
+	numberFound++;
+      }
+    }
+    assert numberFound == imgReff.size()
+    return numberFound
+  }
+  
 }
 

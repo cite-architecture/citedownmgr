@@ -16,6 +16,7 @@ import edu.harvard.chs.citedownutils.MarkdownUtil
 
 import edu.harvard.chs.cite.CiteUrn
 
+import groovy.json.JsonBuilder
 
 /**
 * Works with one or more citedown source files in a directory hierarchy
@@ -23,7 +24,7 @@ import edu.harvard.chs.cite.CiteUrn
 */
 class SiteBuilder {
 
-  Integer debug = 2
+  Integer debug = 0
 
 
   /** Root directory of source files in citedown format. */
@@ -61,6 +62,8 @@ class SiteBuilder {
   /** Base URL of CITE Collection service */
   String cc
 
+  /** Title for entire archive */
+  String archiveTitle = "Untitled"
 
 
   /** Constructor defining root directory for citedown source.
@@ -128,18 +131,18 @@ class SiteBuilder {
   }
 
 
-  /** Collects all reference definitions in a citedown source file
+  /** Uses an ImageRetrieve to get all reference definitions 
+   * for images in a citedown source file
    * and returns them in a sorted list.
    * @param f File with contents in citedown.
    * @returns A sorted list of reference identifiers.
    */
-  ArrayList getSortedReff(File f) {
-    String md = f.getText("UTF-8")
-    MarkdownUtil mu = new MarkdownUtil(md)
-    mu.collectReferences()
-    return mu.referenceMap.keySet().sort()
+  ArrayList getSortedImgReff(File f) {
+    ImageRetriever imgRetriever = new ImageRetriever(f)
+    imgRetriever.configureImageCollections(this.imgCollections)
+    imgRetriever.mu.img =  this.imgSvc
+    return imgRetriever.getImageRefList()
   }
-
 
 
   /** Given a set of files with contents in citedown, writes 
@@ -166,36 +169,25 @@ class SiteBuilder {
     fileList.each { f ->
       File targetFile = new File(targetDir, f.name)
       filteredFiles.add(targetFile)
-      ArrayList reff = getSortedReff(f)
+      ArrayList reff = getSortedImgReff(f)
       ArrayList lineList = f.readLines()
       reff.each { ref ->
-
-	def citePattern = ~/\{(.+)\}.${ref}./
-
- /* /{([^}])*}.${ref}./ */
-
-
+	java.util.regex.Pattern citePattern = ~/\{([^{]+)\}\[${ref}\]/
+			       
 	lineList.eachWithIndex { l, i ->
-	  // ALSO LOOK FOR:
-	  // {TEXT}[${ref}]
-	  // and replace with 
-	  // [TEXTS][${ref}]
-	  //def matcher = l =~ "\{.*\}.${ref}."
-	  def matcher = l =~ citePattern
-	  if (matcher.getCount()) {
-	    System.err.println "MATCHED: " + matcher
-	    matcher.each { match, caption ->
-	      System.err.println "\t" + match
-	      System.err.println "\t" + caption
-
-	    }
-	  }
-
+	  // Check for reference definition:
 	  if (l.startsWith("[${ref}]:")) {
 	    String revision = l.replaceFirst(/:.+/, ": images/img${imgCount}.jpg")
 	    lineList[i]  = revision
 	  }
-
+	  // And for reference quotation:
+	  java.util.regex.Matcher matcher = l =~ citePattern
+	  if (matcher.getCount()) {
+	    String revision = l.replaceAll(citePattern) { full, caption ->
+	      return "[${caption}][${ref}]"
+	    }
+	    lineList[i] = revision
+	  }
 	}
 	imgCount++;
       }
@@ -279,8 +271,6 @@ class SiteBuilder {
     }
     return files
   }
-
-
 
   /** For a directory lacking a toc.txt file, collects all file names
    * alphabetically, and recursively sequences subdirectories.
@@ -384,21 +374,43 @@ class SiteBuilder {
     } 
    
     File leanpub = new File(outputDir, "Books.txt")
+    File bfdocsManifest = new File(outputDir,"manifest.json")
 
+    // ordered list of files:
     ArrayList outputSequence = []
+    ArrayList fileNames = []
     fileList.each { f ->
       if (f.exists() && f.canRead()) {
 	String fileName = getNewFileName(outputDir, f.name)
 	File dest = new File(outputDir, fileName)
 	Files.copy(f, dest) 
 	outputSequence.add(dest)
-	leanpub.append("${dest.name}\n")
+	fileNames.add(dest.name)
+	leanpub.append("${dest.name}\n", "UTF-8")
+	
       } else {
 	throw new Exception("SiteBuilder:flatCopy: cannot read file ${f}.")
       }
     }
+
+    String jsonManifest = writeBfDocsManifest(fileNames)
+    bfdocsManifest.setText(jsonManifest, "UTF-8")
     return outputSequence
   }
+
+  String writeBfDocsManifest() {
+    return writeBfDocsManifest(this.fileSequence)
+  }
+  
+  String writeBfDocsManifest(ArrayList fileNames) {
+    def jsonBldr = new JsonBuilder()
+    def root =     jsonBldr {
+      title this.archiveTitle
+      files fileNames
+    }
+    return jsonBldr.toString()
+  }
+
 
 
   /** Generates a translation of an entire citedown
@@ -421,9 +433,13 @@ class SiteBuilder {
     if (!targetDir.canWrite()) {
       throw new Exception("SiteBuilder:flatCopy: Cannot write to output directory ${targetDir}")
     } 
-   
+    
+
     File flattened = new File("${targetDir}/TEMPDIR-flattened")
     flattened.mkdir()
+    // Books.txt and manifest.json are made here:
+    // move them to ultimate output dir:
+
     
     File filtered = new File("${targetDir}/TEMPDIR-filtered")
     filtered.mkdir()
@@ -458,12 +474,13 @@ class SiteBuilder {
    * @returns A String of pure markdown.
    */
   String convertToMarkdown(File f) {
-    System.err.println "SiteBuider:convertToMarkdown: Convert contens of ${f} to pure markdown string"
+    if (debug > 0) {
+      System.err.println "SiteBuider:convertToMarkdown: Convert contents of ${f} to pure markdown string"
+    }
     MarkdownUtil mdu = new MarkdownUtil(f.getText())
     mdu.cts = this.cts
     mdu.img = this.imgSvc
     mdu.imgCollections = this.imgCollections
-    
     return mdu.toMarkdown()
   }
 
