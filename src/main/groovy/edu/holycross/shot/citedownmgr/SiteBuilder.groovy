@@ -47,7 +47,7 @@ class SiteBuilder {
    *  toc.txt and web.properties, invisible (dot) files, and all files 
    * ending in extensions for the image types we use (jpeg, png).
    */
-  FilenameFilter exclusionFilter = [accept: {d, f -> f.toLowerCase() != 'toc.txt' && f.toLowerCase() != 'web.properties' && ! (f.toLowerCase() ==~ /.+~/) && !(f.toLowerCase() ==~ /.+.jpg/) &&!(f.toLowerCase() ==~ /.+.png/) && !(f.toLowerCase() ==~ /.+.jpeg/) && (f[0] != '.')}] as FilenameFilter
+  FilenameFilter exclusionFilter = [accept: {d, f -> f.toLowerCase() != 'toc.txt' && f.toLowerCase() != 'web.properties' && ! (f.toLowerCase() ==~ /.+~/) && !(f.toLowerCase() ==~ /.+.jpg/) &&!(f.toLowerCase() ==~ /.+.png/) && !(f.toLowerCase() ==~ /.+.jpeg/) &&  !(f.toLowerCase() ==~ /.+.gif/) && (f[0] != '.')}] as FilenameFilter
 
 
   /** Base URL of CITE Image Service */
@@ -392,7 +392,7 @@ class SiteBuilder {
 	Files.copy(f, dest) 
 	outputSequence.add(dest)
 	fileNames.add(dest.name)
-	leanpub.append("${dest.name}\n", "UTF-8")
+	leanpub.append("${dest.name}\n", outputEncoding)
 	
       } else {
 	throw new Exception("SiteBuilder:flatCopy: cannot read file ${f}.")
@@ -400,7 +400,7 @@ class SiteBuilder {
     }
 
     String jsonManifest = writeBfDocsManifest(fileNames)
-    bfdocsManifest.setText(jsonManifest, "UTF-8")
+    bfdocsManifest.setText(jsonManifest, outputEncoding)
     return outputSequence
   }
 
@@ -473,11 +473,11 @@ class SiteBuilder {
     // Books.txt and manifest.json are made here:
     // move them to ultimate output dir:
     File books = new File(targetDir,"Books.txt")
-    books.setText(new File(flattened, "Books.txt").getText("UTF-8"), "UTF-8")
+    books.setText(new File(flattened, "Books.txt").getText(inputEncoding), outputEncoding)
 
 
     File manifest = new File(targetDir,"manifest.json")
-    manifest.setText(new File(flattened, "manifest.json").getText("UTF-8"), "UTF-8")
+    manifest.setText(new File(flattened, "manifest.json").getText(inputEncoding), outputEncoding)
 
     if (debug > 1) {
     } else {
@@ -526,7 +526,7 @@ class SiteBuilder {
     srcFiles.each { f ->
       File target = new File(outDir, f.name)
       if (debug > 0) { System.err.println "SiteBuilder:cdToMd: Convert citedown file ${f}  to markdown ${target}" }
-      target.setText(convertToMarkdown(f), "UTF-8")
+      target.setText(convertToMarkdown(f), outputEncoding)
       mdFiles.add(target)
     }
     return mdFiles
