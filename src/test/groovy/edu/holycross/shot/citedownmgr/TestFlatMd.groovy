@@ -14,7 +14,7 @@ import edu.harvard.chs.cite.CiteUrn
 
 /**
 */
-class TestLeanpub extends GroovyTestCase {
+class TestFlatMd extends GroovyTestCase {
 
 
   File testset1 = new File("testdata/testset1")
@@ -31,8 +31,8 @@ class TestLeanpub extends GroovyTestCase {
     sb.configureImages(imgsvc, imgColls)
     sb.cts = cts
 
-    System.err.println "Configured site builder. Now invoke leanpub()"
-    sb.leanpub(leanpubDir)
+    System.err.println "Configured site builder. Now invoke flatmd()"
+    sb.flatmd(leanpubDir)
 
     // add tests: on num files in dir, num image files in image dir?
 

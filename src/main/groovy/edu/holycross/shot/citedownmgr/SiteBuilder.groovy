@@ -24,7 +24,7 @@ import groovy.json.JsonBuilder
 */
 class SiteBuilder {
 
-  Integer debug = 0
+  Integer debug = 1
 
 
   /** Root directory of source files in citedown format. */

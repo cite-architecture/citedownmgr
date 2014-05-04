@@ -23,7 +23,7 @@ import edu.harvard.chs.cite.CiteUrn
 class ImageRetriever {
 
 
-  Integer debug = 0
+  Integer debug = 4
 
 
   /** An instance of the utility class 
@@ -121,23 +121,9 @@ class ImageRetriever {
 	}
 
 	def collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
-	if (this.mu.imgCollections.contains(collUrn)) {
-	  imgReff.add(ref)
-
-	  if (debug > 0) {
-	    System.err.println "\nImageRetriever:retrieveImages: found ${collUrn} in ${this.mu.imgCollections}\n"
-	  }
-
-	} else {
-	  if (debug > 2) {
-	    System.err.println "ImageRetriever:retrieveImages: ${urn} NOT in ${this.mu.imgCollections}"
-	    System.err.println "ImageRetriever:retrieveImages:  looked at ${collUrn}\n"
-	    this.mu.imgCollections.each { c ->
-	      System.err.println "${c} of class ${c.getClass()}"
-	      assert c.toString() == collUrn
-	      System.err.println "${c} does equal ${collUrn}\n"
-	    }
-
+	this.mu.imgCollections.each { c ->
+	  if  (c.toString() == collUrn) {
+	    imgReff.add(ref)
 	  }
 	}
       }
@@ -170,12 +156,14 @@ class ImageRetriever {
       CiteUrn urn = new CiteUrn(urnStr)
       
       def collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
-      if (this.mu.imgCollections.contains(collUrn)) {
-	String urlStr = urlForUrn(urn)
-	File imgFile = new File(outputDir, "img${imgNum}.jpg")
-	this.download(urlStr, imgFile)
-	imgNum++;
-	numberFound++;
+      this.mu.imgCollections.each { c ->
+	if  (c.toString() == collUrn) {
+	  String urlStr = urlForUrn(urn)
+	  File imgFile = new File(outputDir, "img${imgNum}.jpg")
+	  this.download(urlStr, imgFile)
+	  imgNum++;
+	  numberFound++;
+	}
       }
     }
     assert numberFound == imgReff.size()

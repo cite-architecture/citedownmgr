@@ -68,16 +68,14 @@ dependencies {
   testCompile group :'xmlunit', name: 'xmlunit', version: xmlunitVersion
 }
 
-task leanpub(type: JavaExec, dependsOn: compileGroovy) {
-    description = "Generate Leanpub layout"
-    main = "edu.holycross.shot.citedownmgr.Leanpub"
-    args = [citedownDir, outputDir, imgSvc, imgCollection, cts, cc]
+
+task flatmd(type: JavaExec, dependsOn: compileGroovy) {
+    description = "Generate bfdocs layout"
+    main = "edu.holycross.shot.citedownmgr.FlatMarkdown"
+    args = [citedownDir, outputDir, imgSvc, imgCollection, cts, cc, title]
 
     classpath sourceSets.main.output.classesDir
     classpath configurations.runtime
-    doLast {
-      System.err.println "Do the whole thing in a JavaExec task"
-    }
 }
 
 

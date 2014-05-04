@@ -14,7 +14,7 @@ import edu.harvard.chs.cite.CiteUrn
 
 /**
 */
-class TestLeanpubClass extends GroovyTestCase {
+class TestFlatMdMain extends GroovyTestCase {
 
 
   File testset1 = new File("testdata/testset1")
@@ -39,11 +39,11 @@ class TestLeanpubClass extends GroovyTestCase {
     String  imgCollection = "urn:cite:hmt:vaimg"
 
 
-    String[] argStrings = [citedownDir, outputDir, imgSvc, imgCollection, cts, cc]
+    String[] argStrings = [citedownDir, outputDir, imgSvc, imgCollection, cts, cc, "Test archive"]
     System.err.println "Here are args for main:"
     System.err.println argStrings
     System.err.println "Now running main:"
-    Leanpub.main(argStrings)
+    FlatMarkdown.main(argStrings)
 
 
   }
