@@ -35,6 +35,7 @@ class TestLeanpub extends GroovyTestCase {
     sb.leanpub(leanpubDir)
 
     // add tests: on num files in dir, num image files in image dir?
+
     //leanpubDir.deleteDir()
 
   }

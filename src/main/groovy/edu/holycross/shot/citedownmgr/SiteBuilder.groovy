@@ -437,9 +437,6 @@ class SiteBuilder {
 
     File flattened = new File("${targetDir}/TEMPDIR-flattened")
     flattened.mkdir()
-    // Books.txt and manifest.json are made here:
-    // move them to ultimate output dir:
-
     
     File filtered = new File("${targetDir}/TEMPDIR-filtered")
     filtered.mkdir()
@@ -449,6 +446,8 @@ class SiteBuilder {
     if (debug > 0) {
       System.err.println "Flattened source files into ${flattened}"
     }
+    
+
 
     ArrayList modifiedList = this.rewriteImageReff(flatList, filtered)
     if (debug > 0) {
@@ -457,8 +456,22 @@ class SiteBuilder {
 
     ArrayList leanpubMarkdown = this.cdToMd(modifiedList,targetDir)
 
+    if (debug > 0) {
+      System.err.println "Filtered flattened source files into ${filtered}"
+    }
+
     File imgDir = new File("${targetDir}/images")
     this.retrieveImages(imgDir)
+
+
+    // Books.txt and manifest.json are made here:
+    // move them to ultimate output dir:
+    File books = new File(targetDir,"Books.txt")
+    books.setText(new File(flattened, "Books.txt").getText("UTF-8"), "UTF-8")
+
+
+    File manifest = new File(targetDir,"manifest.json")
+    manifest.setText(new File(flattened, "manifest.json").getText("UTF-8"), "UTF-8")
 
     if (debug > 1) {
     } else {
@@ -490,6 +503,7 @@ class SiteBuilder {
    * @param srcFiles A list of files to convert.
    * @param outDir A writable directory where converted
    * files should be written
+   * @returns
    * @throws Exception if cannot write to outDir.
   */
   ArrayList cdToMd(ArrayList srcFiles, File outDir) 
@@ -501,11 +515,15 @@ class SiteBuilder {
       throw new Exception("SiteBuilder:cdToMd: Cannot write to output directory ${outDir}")
     } 
 
+
+    ArrayList mdFiles = []
     srcFiles.each { f ->
       File target = new File(outDir, f.name)
       if (debug > 0) { System.err.println "SiteBuilder:cdToMd: Convert citedown file ${f}  to markdown ${target}" }
       target.setText(convertToMarkdown(f), "UTF-8")
+      mdFiles.add(target)
     }
+    return mdFiles
   }
 
 }

@@ -43,6 +43,9 @@ class Leanpub {
     sb.configureImages(imgSvc, imgCollections)
     sb.cts = cts
     sb.debug = 2
+
+    System.err.println "Image collections: " + imgCollections
+
     sb.leanpub(outDir)
   }
 
