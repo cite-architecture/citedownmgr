@@ -102,6 +102,7 @@ class ImageRetriever {
   // URN in a configured collection
   ArrayList getImageRefList() {
     ArrayList imgReff = []
+    this.mu.collectReferences()
     this.mu.referenceMap.keySet().sort().each { ref ->
       def mapping =  this.mu.referenceMap[ref]
       String urnStr = mapping[0]
@@ -109,15 +110,35 @@ class ImageRetriever {
       try {
 	urn = new CiteUrn(urnStr)
       } catch (Exception e) {
-	if (debug > 0) {
+	if (debug > 1) {
 	  System.err.println "ImageRetriever:retrieveImages: skip reference ${urnStr}"
 	}
       }
 
       if (urn) {
-	String collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
+	if (debug > 2) {
+	  System.err.println "\nImageRetriever:retrieveImages: check ${urn} in collection..."
+	}
+
+	def collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
 	if (this.mu.imgCollections.contains(collUrn)) {
 	  imgReff.add(ref)
+
+	  if (debug > 0) {
+	    System.err.println "\nImageRetriever:retrieveImages: found ${collUrn} in ${this.mu.imgCollections}\n"
+	  }
+
+	} else {
+	  if (debug > 2) {
+	    System.err.println "ImageRetriever:retrieveImages: ${urn} NOT in ${this.mu.imgCollections}"
+	    System.err.println "ImageRetriever:retrieveImages:  looked at ${collUrn}\n"
+	    this.mu.imgCollections.each { c ->
+	      System.err.println "${c} of class ${c.getClass()}"
+	      assert c.toString() == collUrn
+	      System.err.println "${c} does equal ${collUrn}\n"
+	    }
+
+	  }
 	}
       }
     }
@@ -125,19 +146,30 @@ class ImageRetriever {
   }
 
 
-  Integer retrieveImages(File outputDir, Integer imgNum) {
+  // excpetion if outputDir is not writable
+  Integer retrieveImages(File outputDir, Integer imgNum) 
+  throws Exception {
     Integer numberFound = 0
     if (! outputDir.exists()) {
       outputDir.mkdir()
     }
-    
+    if (! outputDir.canWrite()) {
+      throw new Exception("ImageRetriever:retrieveImages: cannot save images to ${outputDir}")
+    }
+
+    if (debug > 0) {
+      System.err.println "\nImageRetriever:retrieveImages: will put images in ${outputDir}\n"
+    }
     ArrayList imgReff = this.getImageRefList()
+    if (debug > 0) {
+      System.err.println "ImageRetriever:retrieveImages: list of Reff = " + imgReff
+    }
     imgReff.each { ref ->
       def mapping =  this.mu.referenceMap[ref]
       String urnStr = mapping[0]
       CiteUrn urn = new CiteUrn(urnStr)
       
-      String collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
+      def collUrn = "urn:cite:${urn.getNs()}:${urn.getCollection()}"
       if (this.mu.imgCollections.contains(collUrn)) {
 	String urlStr = urlForUrn(urn)
 	File imgFile = new File(outputDir, "img${imgNum}.jpg")

@@ -38,14 +38,17 @@ class Leanpub {
     String cts = arg[4]
     String cc = arg[5]
 
-
-    SiteBuilder sb = new SiteBuilder(src)    
+    System.err.println "Builder using src " + src
+        SiteBuilder sb = new SiteBuilder(src)    
+    System.err.println "Image svc and collections: " + imgSvc + ", " + imgCollections
     sb.configureImages(imgSvc, imgCollections)
+    System.err.println "cts: " + cts
     sb.cts = cts
+    System.err.println "collections: " + cts
+    sb.cc = cc
     sb.debug = 2
-
-    System.err.println "Image collections: " + imgCollections
-
+    
+    System.err.println "Outddir: " + outDir
     sb.leanpub(outDir)
   }
 

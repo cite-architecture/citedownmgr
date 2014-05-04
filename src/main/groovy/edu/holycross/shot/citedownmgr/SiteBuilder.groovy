@@ -119,8 +119,14 @@ class SiteBuilder {
       throw new Exception("SiteBuilder:retrieveImages: not configured to retrieve images.")
     }
 
+    if (debug > 0) {
+      System.err.println "Retrieving images from ${this.imgSvc} from collections ${this.imgCollections} "
+    }
     Integer imgCount = 1
     this.fileSequence.each { f ->
+      if (debug > 0 ) {
+	System.err.println "\tRetreive images from ${f}"
+      }
       ImageRetriever imgRetriever = new ImageRetriever(f)
       imgRetriever.configureImageCollections(this.imgCollections)
       imgRetriever.mu.img =  this.imgSvc
