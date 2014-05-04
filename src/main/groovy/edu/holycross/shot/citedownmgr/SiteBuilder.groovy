@@ -299,6 +299,49 @@ class SiteBuilder {
   }
 
 
+  String getArchiveRoot(){
+    return FilenameUtils.getPath("${this.fileSequence[0]}")
+  }
+
+  void web(File targetDir) 
+  throws Exception {
+    if (!targetDir.exists()) {
+      targetDir.mkdir()
+    }
+    if (!targetDir.canWrite()) {
+      throw new Exception("SiteBuilder:flatCopy: Cannot write to output directory ${targetDir}")
+    } 
+    
+    Web web = new Web(getArchiveRoot(), targetDir)
+    this.fileSequence.eachWithIndex {  f, i ->
+      // IDfy directory we're in.
+
+      // - check for web.properties, and configure if needed
+      WebConfig conf = new WebConfig()
+
+      // - compute uplink.  Need to find first file in parent dir.
+      // Do this once and keep a hash of directories -> up link?
+      String up = ""
+
+      // - compute title for file
+      String title = ""
+
+      String prev = ""
+      String next = ""
+      if (i > 0) {
+	prev = "${fileSequence[i - 1]}"
+      }
+      if (i < (fileSequence.size() - 1)) {
+	next = "${fileSequence[i + 1]}"
+      }
+
+
+      String pageContent = web.formatPage(f.getText(inputEncoding), title, conf, up, prev, next)
+      System.err.println "Write html to " + web.htmlForCd(f)
+    }
+  }
+
+
   /** Produces a unique name for a file to copy to a
    * given directory.  If the file's name is not already
    * taken, it simply returns the source file's name.
@@ -440,7 +483,6 @@ class SiteBuilder {
       throw new Exception("SiteBuilder:flatCopy: Cannot write to output directory ${targetDir}")
     } 
     
-
     File flattened = new File("${targetDir}/TEMPDIR-flattened")
     flattened.mkdir()
     
@@ -453,8 +495,6 @@ class SiteBuilder {
       System.err.println "Flattened source files into ${flattened}"
     }
     
-
-
     ArrayList modifiedList = this.rewriteImageReff(flatList, filtered)
     if (debug > 0) {
       System.err.println "Filtered flattened source files into ${filtered}"

@@ -23,7 +23,37 @@ import edu.harvard.chs.cite.CiteUrn
 */
 class Web {
 
-  Web() {
+  String cdRoot
+  File targetDir
+
+  Web(String pathRoot, File outputDir) {
+    this.cdRoot = pathRoot
+    this.targetDir = outputDir
+  }
+
+
+
+
+  String htmlForCd(File f) 
+  throws Exception{
+    try {
+      String path1 = f.toString()
+      String relativeFile = path1.replaceFirst(cdRoot, '')
+
+      // Use apache filenameutils to check for:
+      // no extension
+      // .md
+      // .markdown
+
+      return "${targetDir}/${relativeFile}".replaceFirst(/.md$/,".html")
+    } catch (Exception e ) {
+      throw e
+    }
+  }
+
+
+  String formatPage (String articleText, String pageTitle, WebConfig conf, String up, String prev, String next) {
+    return "Prev ${prev} | Next ${next}"
   }
 
 
@@ -38,4 +68,7 @@ class Web {
 
 
 }
+
+
+
 
