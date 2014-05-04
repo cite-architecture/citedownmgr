@@ -314,8 +314,10 @@ class SiteBuilder {
     
     Web web = new Web(getArchiveRoot(), targetDir)
     this.fileSequence.eachWithIndex {  f, i ->
-      // IDfy directory we're in.
 
+      String pureMarkdown = convertToMarkdown(f)
+
+      // IDfy directory we're in.
       // - check for web.properties, and configure if needed
       WebConfig conf = new WebConfig()
 
@@ -334,10 +336,10 @@ class SiteBuilder {
       if (i < (fileSequence.size() - 1)) {
 	next = "${fileSequence[i + 1]}"
       }
+      
 
-
-      String pageContent = web.formatPage(f.getText(inputEncoding), title, conf, up, prev, next)
-      System.err.println "Write html to " + web.htmlForCd(f)
+      String pageContent = web.formatPage(pureMarkdown, title, conf, up, prev, next)
+      System.err.println "Write pageContent to " + web.htmlForCd(f)
     }
   }
 
