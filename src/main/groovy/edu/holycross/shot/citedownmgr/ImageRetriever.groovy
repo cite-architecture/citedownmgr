@@ -23,7 +23,7 @@ import edu.harvard.chs.cite.CiteUrn
 class ImageRetriever {
 
 
-  Integer debug = 4
+  Integer debug = 0
 
 
   /** An instance of the utility class 
