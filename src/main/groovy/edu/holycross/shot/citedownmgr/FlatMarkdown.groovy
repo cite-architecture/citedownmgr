@@ -19,11 +19,11 @@ import edu.harvard.chs.cite.CiteUrn
 
 /**
 * Class for use especially with gradle build, with main method 
-* generating complete Leanpub-compatible source from citedown archive.
+* generating complete bfdocs-compatible source from citedown archive.
 */
-class Leanpub {
+class FlatMarkdown {
 
-  Leanpub() {
+  FlatMarkdown() {
   }
 
 
@@ -37,12 +37,14 @@ class Leanpub {
     ArrayList imgCollections = ["${arg[3]}"]
     String cts = arg[4]
     String cc = arg[5]
+    String title = arg[6]
 
     SiteBuilder sb = new SiteBuilder(src)    
     sb.configureImages(imgSvc, imgCollections)
     sb.cts = cts
     sb.cc = cc
-    sb.leanpub(outDir)
+    sb.archiveTitle = title
+    sb.flatmd(outDir)
   }
 
 

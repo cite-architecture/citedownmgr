@@ -431,7 +431,7 @@ class SiteBuilder {
    * project, you can directly publish your work from leanpub's
    * web interface.
    */
-  void leanpub(File targetDir) 
+  void flatmd(File targetDir) 
   throws Exception {
     if (!targetDir.exists()) {
       targetDir.mkdir()

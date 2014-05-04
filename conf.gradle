@@ -1,5 +1,6 @@
 
 ext {
+  title = ""	
   citedownDir = ""
   outputDir = ""
   imgSvc = ""
