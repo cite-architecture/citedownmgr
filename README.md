@@ -7,7 +7,7 @@ Tools for managing a repository of texts in **citedown** (that is, markdown exte
 
 There are lots of good tools for working with markdown. The `cd2md` library makes it easy to convert a citedown document relying on a single repository to generic markdown.  But many tools for working with collections of markdown source files either require or make it much easier for you if your source material is in a single, flat directory.
 
-`citedownutils` lets you organize citedown source in a normal directory hierarchy, and supports:
+`citedownmgr` lets you organize citedown source in a normal directory hierarchy, and supports:
 
 - flattening your citedown file tree into a single directory of generic markdown with metadata for tools like leanpub and bfdocs
 - generating a web site that mirrors the directory hierarchy of your source
