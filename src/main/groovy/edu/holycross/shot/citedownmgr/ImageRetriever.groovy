@@ -25,6 +25,8 @@ class ImageRetriever {
 
   Integer debug = 0
 
+  Integer  srcWidth = 9000
+
 
   /** An instance of the utility class 
    * that can parse and work with citedown.
@@ -72,7 +74,7 @@ class ImageRetriever {
   // Return GetBinaryImage request URL for retrieval of binary
   // image  data
   String urlForUrn(CiteUrn urn) {
-    return "${mu.img}?request=GetBinaryImage&urn=${urn}"
+    return "${mu.img}?request=GetBinaryImage&w=${srcWidth}&urn=${urn}"
   }
 
 
