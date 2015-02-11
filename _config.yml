@@ -1,0 +1,33 @@
+# Dependencies
+markdown:         redcarpet
+pygments:         true
+
+# Permalinks
+permalink:        pretty
+
+# Setup
+title:            citedownmgr
+tagline:          'Manage a repository of texts in citedown'
+description:      'Tools for working with texts written in markdown extended to support scholarly citation with URNs '
+baseurl: '/citedownmgr/'
+
+
+author:
+  name:           'Neel Smith'
+ 
+
+paginate:         5
+
+github:
+  repo:           https://github.com/neelsmith/citedownmgr
+
+version:          0.12.0
+
+links:
+  - title: Github project
+    url: https://github.com/cite-architecture/citedownmgr
+    external: true
+  - title: CITE architecture home page
+    url: http://cite-architecture.github.io/
+    external: true
+   
